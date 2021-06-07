@@ -9,6 +9,7 @@ let newInputPrice = null;
 let newInputDate = null;
 const content = document.getElementById('all-expenses');
 let isEdit = null;
+let isEditDate = null;
 
 window.onload = async () => {
   inputName = document.getElementById('add-buy-name');
@@ -101,40 +102,39 @@ const Buy = (item, index) => {
   }
   container.appendChild(contentName);
 
-  const contentDate = document.createElement('p');
-  contentDate.className = 'content-date';
-  contentDate.innerText = item.date;
-  contentDate.ondblclick = () => {
-    contentDate.setAttribute('contentEditable', 'true');
-    contentDate.focus();
-  };
-  contentDate.onblur = async () => {
-    const newDate = contentDate.innerText.split('.');
-
-    if (1 <= Number(newDate[0]) && Number(newDate[0]) <= 31 &&
-      1 <= Number(newDate[1]) && Number(newDate[1]) <= 12 &&
-      2000 <= Number(newDate[2]) && Number(newDate[2]) <= 2100) {
+  if (isEditDate === index) {
+    const contentDate = document.createElement('input');
+    contentDate.type = 'date';
+    contentDate.value = item.date.substr(6, 4) + '-' + item.date.substr(3, 2) + '-' + item.date.substr(0, 2);
+    newInputDate = item.date;
+    contentDate.className = 'content-date-input';
+    contentDate.onchange = (e) => updateValueDate(e);
+    contentDate.onblur = async () => {
       const resp = await fetch('http://localhost:4000/editBuy', {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json;charset=utf-8',
           'Access-Control-Allow-Origin': '*'
         },
-        body: JSON.stringify({_id: item._id, date: contentDate.innerText})
+        body: JSON.stringify({_id: item._id, date: newInputDate})
       });
-
-      contentName.setAttribute('contentEditable', 'false');
 
       res = await resp.json();
       allExpenses = res.data;
-      isEdit = null;
-      render();
-    } else {
-      alert('Неверное значение');
+      isEditDate = null;
       render();
     }
+    container.appendChild(contentDate);
+  } else {
+    const contentDate = document.createElement('p');
+    contentDate.className = 'content-date';
+    contentDate.innerText = item.date;
+    contentDate.ondblclick = () => {
+      isEditDate = index;
+      render();
+    };
+    container.appendChild(contentDate);
   }
-  container.appendChild(contentDate);
 
   const contentPrice = document.createElement('p');
   contentPrice.className = 'content-price';
@@ -200,16 +200,12 @@ const editBuy = (item, index) => {
   contentName.value = item.text;
   contentName.onkeyup = (e) => updateValueName(e);
   contentName.className = 'content-name-input';
-  contentName.ondblclick = () => {
-  };
   container.appendChild(contentName);
 
   const contentDate = document.createElement('input');
   contentDate.type = 'date';
   contentDate.value = item.date.substr(6, 4) + '-' + item.date.substr(3, 2) + '-' + item.date.substr(0, 2);
   contentDate.className = 'content-date-input';
-  contentDate.ondblclick = () => {
-  };
   contentDate.onchange = (e) => updateValueDate(e);
   container.appendChild(contentDate);
 
@@ -292,7 +288,7 @@ const onCancelClick = () => {
 const onDoneClick = async (index) => {
   let {_id} = allExpenses[index];
 
-  if (!newInputPrice || !newInputName.trim()  ) {
+  if (!newInputPrice || !newInputName.trim()) {
     alert('Ты накосячил, а я должен убирать...');
     onDeleteClick(index);
     isEdit = null;
@@ -337,8 +333,7 @@ const updateValueName = (e) => {
 }
 
 const updateValueDate = (e) => {
-  newInputDate = e.target.value.substr(8,2) + '.' + e.target.value.substr(5,2) + '.' + e.target.value.substr(0,4);
-  console.log(newInputDate);
+  newInputDate = e.target.value.substr(8, 2) + '.' + e.target.value.substr(5, 2) + '.' + e.target.value.substr(0, 4);
 }
 
 const updateValuePrice = (e) => {

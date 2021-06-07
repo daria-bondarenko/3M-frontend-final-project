@@ -109,21 +109,21 @@ body {
 }
 
 .content-name-input {
-    width: 40%;
+    width: 34%;
     height: 2rem;
-    margin: 32px 0;
+    margin: 0;
 }
 
 .content-date-input {
-    width: 25%;
+    width: 34%;
     height: 2rem;
-    margin: 32px 0;
+    margin: 0;
 }
 
 .content-price-input {
-    width: 25%;
+    width: 18%;
     height: 2rem;
-    margin: 32px 0;
+    margin: 0;
 }
 
 .content-price-input::-webkit-outer-spin-button,
@@ -134,8 +134,6 @@ body {
 .button {
     border: none;
     background: none;
-    /*height: 45px;*/
-    /*font-size: 1rem;*/
     margin: 0 0 0 20px;
     min-width: 35px;
     min-height: 35px;
